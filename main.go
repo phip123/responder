@@ -23,62 +23,44 @@ const defaultLognormStdev = 15
 
 func static(c *gin.Context) {
 	params := struct {
-		Time   float64 `form:"time"`
-		Cores  int     `form:"cores"`
-		Stress string  `form:"stress"`
+		Time  float64 `form:"time"`
+		Cores int     `form:"cores"`
 	}{
-		Time:   defaultStatic,
-		Cores:  1,
-		Stress: "no",
+		Time:  defaultStatic,
+		Cores: 0,
 	}
 	c.ShouldBindQuery(&params)
-	stress := true
-	if params.Stress == "no" {
-		stress = false
-	}
-	sleepAndRespond(c, time.Duration(params.Time)*time.Millisecond, params.Cores, stress)
+	sleepAndRespond(c, time.Duration(params.Time)*time.Millisecond, params.Cores)
 }
 
 func uniform(c *gin.Context) {
 	params := struct {
-		From   int64  `form:"from"`
-		To     int64  `form:"to"`
-		Cores  int    `form:"cores"`
-		Stress string `form:"stress"`
+		From  int64 `form:"from"`
+		To    int64 `form:"to"`
+		Cores int   `form:"cores"`
 	}{
-		From:   defaultUniformFrom,
-		To:     defaultUniformTo,
-		Cores:  1,
-		Stress: "no",
+		From:  defaultUniformFrom,
+		To:    defaultUniformTo,
+		Cores: 0,
 	}
 	c.BindQuery(&params)
 	delay := uniformRand(params.From, params.To)
-	stress := false
-	if params.Stress == "no" {
-		stress = true
-	}
-	sleepAndRespond(c, time.Millisecond*time.Duration(delay), params.Cores, stress)
+	sleepAndRespond(c, time.Millisecond*time.Duration(delay), params.Cores)
 }
 
 func lognorm(c *gin.Context) {
 	params := struct {
-		Mean   float64 `form:"mean"`
-		Stdev  float64 `form:"stdev"`
-		Cores  int     `form:"cores"`
-		Stress string  `form:"stress"`
+		Mean  float64 `form:"mean"`
+		Stdev float64 `form:"stdev"`
+		Cores int     `form:"cores"`
 	}{
-		Mean:   defaultLognormMean,
-		Stdev:  defaultLognormStdev,
-		Cores:  1,
-		Stress: "no",
+		Mean:  defaultLognormMean,
+		Stdev: defaultLognormStdev,
+		Cores: 0,
 	}
 	c.BindQuery(&params)
 	delay := lognormalRand(params.Mean, params.Stdev)
-	stress := false
-	if params.Stress == "no" {
-		stress = true
-	}
-	sleepAndRespond(c, time.Millisecond*time.Duration(delay), params.Cores, stress)
+	sleepAndRespond(c, time.Millisecond*time.Duration(delay), params.Cores)
 }
 
 func busySleep(done chan int) {
@@ -91,12 +73,10 @@ func busySleep(done chan int) {
 	}
 }
 
-func sleepAndRespond(c *gin.Context, sleepTime time.Duration, cores int, stress bool) {
+func sleepAndRespond(c *gin.Context, sleepTime time.Duration, cores int) {
 	done := make(chan int)
-	if stress == true {
-		for i := 0; i < cores; i++ {
-			go busySleep(done)
-		}
+	for i := 0; i < cores; i++ {
+		go busySleep(done)
 	}
 	time.Sleep(sleepTime)
 	close(done)
