@@ -17,6 +17,16 @@ You can also always use those without parameters. In this case the following def
 | `/uniform` | `from=10&to=30`  |
 | `/lognorm` | `mean=25&stdev=10` |
 
+### CPU Consumption parameters
+
+Per default the application just sleeps and does not consume any CPU.
+Following parameters can be used to busy wait and consume CPU during the duration.
+
+`/static?cores=<number of go routines>&stress=yes`
+You can use these parameters with any random distribution.
+
+The application will use `100% * cores` CPU for the duration.
+
 ## Request structure
 Apart from the URL and POST request type, you can use any request you like, with any other parameters you like.
 Nothing will happen.
