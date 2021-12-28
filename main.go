@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -8,6 +9,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.Use(TraceMiddleware())
 	r.Any("/static", static)
 	r.Any("/uniform", uniform)
 	r.Any("/lognorm", lognorm)
@@ -80,6 +82,8 @@ func sleepAndRespond(c *gin.Context, sleepTime time.Duration, cores int) {
 	}
 	time.Sleep(sleepTime)
 	close(done)
+	end := time.Now()
+	c.Header("X-End", fmt.Sprintf("%.7f", float64(end.UnixNano())/float64(1000000000)))
 	c.JSON(http.StatusOK, gin.H{
 		"first":  1234.1234,
 		"second": 1234.1234,
